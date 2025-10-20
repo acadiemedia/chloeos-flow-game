@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype 12: The Puzzle</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { display: flex; font-family: sans-serif; margin: 0; }
+    #sidebar { width: 250px; height: 100vh; background: #f0f0f0; padding: 10px; overflow-y: auto; transition: width 0.3s; }
+    #sidebar.hidden { width: 0; padding: 0; }
+    #canvas { flex-grow: 1; }
+    .card { width: 100px; height: 100px; background: #fff; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 10px; cursor: pointer; text-align: center; padding: 10px; }
+    .node { cursor: move; }
+    .node-rect { fill: #fff; stroke: #333; stroke-width: 2px; rx: 10; ry: 10; }
+    .port { fill: #ccc; stroke: #333; stroke-width: 1px; cursor: pointer; }
+    .port.output { fill: #f00; }
+    .connection { stroke: #333; stroke-width: 2px; fill: none; }
+    #toggle-sidebar { position: absolute; top: 10px; left: 260px; z-index: 1; transition: left 0.3s; }
+    #sidebar.hidden + #toggle-sidebar { left: 10px; }
+  </style>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <button id="toggle-sidebar">Toggle</button>
+  <svg id="canvas"></svg>
+  <script>
+    const deck = {
+      'Input/Output': [{ name: 'UserInput', inputs: 0, outputs: 1 }],
+      'Text Generation': [{ name: 'Summarize', inputs: 1, outputs: 1 }],
+    };
+    let nodes = [], links = [], activeCard = null;
+
+    const sidebar = d3.select('#sidebar');
+    const svg = d3.select('#canvas');
+    const g = svg.append('g');
+    svg.call(d3.zoom().on('zoom', e => g.attr('transform', e.transform)));
+
+    document.getElementById('toggle-sidebar').onclick = () => sidebar.classed('hidden', !sidebar.classed('hidden'));
+
+    Object.entries(deck).forEach(([category, cards]) => {
+      sidebar.append('h3').text(category);
+      cards.forEach(card => sidebar.append('div').attr('class', 'card').text(card.name).on('click', () => activeCard = card));
+    });
+
+    svg.on('click', e => {
+      if (activeCard) {
+        const [x, y] = d3.pointer(e, g.node());
+        nodes.push({ ...activeCard, id: Date.now(), x, y });
+        activeCard = null;
+        update();
+      }
+    });
+
+    function update() {
+      const node = g.selectAll('.node').data(nodes, d => d.id);
+      const nodeEnter = node.enter().append('g').attr('class', 'node').call(d3.drag().on('drag', (e, d) => { d.x = e.x; d.y = e.y; update(); }));
+      nodeEnter.append('rect').attr('class', 'node-rect').attr('width', 100).attr('height', 100);
+      nodeEnter.append('text').attr('dy', 55).attr('dx', 50).text(d => d.name);
+      nodeEnter.each(function(d) {
+        for (let i = 0; i < d.inputs; i++) d3.select(this).append('circle').attr('class', 'port input').attr('r', 5).attr('cx', 0).attr('cy', 50 + i * 20);
+        for (let i = 0; i < d.outputs; i++) d3.select(this).append('circle').attr('class', 'port output').attr('r', 5).attr('cx', 100).attr('cy', 50 + i * 20);
+      });
+      node.attr('transform', d => `translate(${d.x},${d.y})`);
+      node.exit().remove();
+
+      const link = g.selectAll('.connection').data(links);
+      link.enter().append('path').attr('class', 'connection');
+      link.attr('d', d => `M${d.source.x + 100},${d.source.y + 50}L${d.target.x},${d.target.y + 50}`);
+      link.exit().remove();
+    }
+
+    update();
+  </script>
+</body>
+</html>
