@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype 2: The Futurist</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { font-family: 'Courier New', Courier, monospace; background-color: #000000; color: #00ff00; margin: 0; overflow: hidden; }
+    svg { width: 100vw; height: 100vh; }
+    .node-rect { fill: #000000; stroke: #00ff00; stroke-width: 2px; filter: drop-shadow(0 0 5px #00ff00); }
+    .node-text { fill: #00ff00; font-size: 14px; text-anchor: middle; }
+    .connection { stroke: #00ff00; stroke-width: 2px; fill: none; filter: drop-shadow(0 0 5px #00ff00); }
+  </style>
+</head>
+<body>
+  <svg id="canvas"></svg>
+  <script>
+    const nodes = [{ id: 1, name: 'Input', x: 100, y: 100 },{ id: 2, name: 'Process', x: 300, y: 100 },{ id: 3, name: 'Output', x: 500, y: 100 }];
+    const svg = d3.select('#canvas').call(d3.zoom().on('zoom', e => g.attr('transform', e.transform)));
+    const g = svg.append('g');
+    const node = g.selectAll('.node').data(nodes, d => d.id).enter().append('g').attr('class', 'node').attr('transform', d => `translate(${d.x},${d.y})`).call(d3.drag().on('drag', (e, d) => { d.x = e.x; d.y = e.y; update(); }));
+    node.append('rect').attr('class', 'node-rect').attr('width', 100).attr('height', 40);
+    node.append('text').attr('class', 'node-text').attr('dy', 25).attr('dx', 50).text(d => d.name);
+    function update() { node.attr('transform', d => `translate(${d.x},${d.y})`); }
+    update();
+  </script>
+</body>
+</html>

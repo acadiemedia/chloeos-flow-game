@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype 4: The Retro</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    @font-face { font-family: 'Pixel'; src: url('https://fonts.gstatic.com/s/pressstart2p/v14/e3t4euO_KcVusKQK-e0_H_fY-Ode_.woff2'); }
+    body { font-family: 'Pixel', cursive; background-color: #222; color: #fff; margin: 0; overflow: hidden; }
+    svg { width: 100vw; height: 100vh; image-rendering: pixelated; }
+    .node-rect { fill: #444; stroke: #fff; stroke-width: 2px; }
+    .node-text { fill: #fff; font-size: 10px; text-anchor: middle; }
+  </style>
+</head>
+<body>
+  <svg id="canvas"></svg>
+  <script>
+    const nodes = [{ id: 1, name: 'Input', x: 100, y: 100 },{ id: 2, name: 'Process', x: 300, y: 100 },{ id: 3, name: 'Output', x: 500, y: 100 }];
+    const svg = d3.select('#canvas').call(d3.zoom().on('zoom', e => g.attr('transform', e.transform)));
+    const g = svg.append('g');
+    const node = g.selectAll('.node').data(nodes, d => d.id).enter().append('g').attr('class', 'node').attr('transform', d => `translate(${d.x},${d.y})`).call(d3.drag().on('drag', (e, d) => { d.x = e.x; d.y = e.y; update(); }));
+    node.append('rect').attr('class', 'node-rect').attr('width', 100).attr('height', 40);
+    node.append('text').attr('class', 'node-text').attr('dy', 25).attr('dx', 50).text(d => d.name);
+    function update() { node.attr('transform', d => `translate(${d.x},${d.y})`); }
+    update();
+  </script>
+</body>
+</html>

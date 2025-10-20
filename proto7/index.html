@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype 7: The Gamified</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    #score { font-size: 2em; }
+  </style>
+</head>
+<body>
+  <h1>Gamified Pipeline</h1>
+  <p>Score: <span id="score">0</span></p>
+  <button onclick="addPoint()">Create Pipeline</button>
+  <script>
+    let score = 0;
+    function addPoint() {
+      score += 10;
+      document.getElementById('score').innerText = score;
+    }
+  </script>
+</body>
+</html>
