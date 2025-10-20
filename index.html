@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChloeOS Flow Game</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      overflow: hidden;
+    }
+    svg {
+      width: 100vw;
+      height: 100vh;
+    }
+    .node {
+      cursor: move;
+    }
+    .node-rect {
+      fill: #1e1e1e;
+      stroke: #bb86fc;
+      stroke-width: 2px;
+    }
+    .node-text {
+      fill: #e0e0e0;
+      font-size: 14px;
+      text-anchor: middle;
+    }
+  </style>
+</head>
+<body>
+  <svg id="canvas"></svg>
+  <script>
+    const nodes = [
+      { id: 1, name: 'InitializeSystem', x: 50, y: 50 },
+      { id: 2, name: 'RegisterMetaSeed', x: 50, y: 150 },
+      { id: 3, name: 'IngestInput', x: 250, y: 50 },
+      { id: 4, name: 'ProcessAudio', x: 450, y: 50 },
+      { id: 5, name: 'ProcessText', x: 450, y: 150 },
+      { id: 6, name: 'ProcessImage', x: 450, y: 250 },
+      { id: 7, name: 'GenerateAvatar', x: 650, y: 150 },
+      { id: 8, name: 'AnimateAvatar', x: 850, y: 150 },
+      { id: 9, name: 'DeliverOutput', x: 1050, y: 150 },
+      { id: 10, name: 'FeedbackLoop', x: 850, y: 350 },
+    ];
+
+    const svg = d3.select('#canvas');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const g = svg.append('g');
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.1, 8])
+      .on('zoom', (event) => {
+        g.attr('transform', event.transform);
+      });
+
+    svg.call(zoom);
+
+    const node = g.selectAll('.node')
+      .data(nodes)
+      .enter().append('g')
+      .attr('class', 'node')
+      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .call(d3.drag()
+        .on('start', dragstarted)
+        .on('drag', dragged)
+        .on('end', dragended));
+
+    node.append('rect')
+      .attr('class', 'node-rect')
+      .attr('width', 150)
+      .attr('height', 40)
+      .attr('rx', 5)
+      .attr('ry', 5);
+
+    node.append('text')
+      .attr('class', 'node-text')
+      .attr('dy', 25)
+      .attr('dx', 75)
+      .text(d => d.name);
+
+    function dragstarted(event, d) {
+      d3.select(this).raise().attr("stroke", "white");
+    }
+
+    function dragged(event, d) {
+      d3.select(this).attr("transform", `translate(${event.x},${event.y})`);
+      d.x = event.x;
+      d.y = event.y;
+    }
+
+    function dragended(event, d) {
+      d3.select(this).attr("stroke", null);
+    }
+
+  </script>
+</body>
+</html>
